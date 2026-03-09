@@ -29,19 +29,19 @@ public class PlotController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseUtil<?> deletePlot(@PathVariable Long id) {
+    public ResponseUtil<?> deletePlot(@PathVariable("id") Long id) {
         boolean result = plotService.deletePlot(id);
         return ResponseUtil.success(result);
     }
 
     @GetMapping("/{id}")
-    public ResponseUtil<PlotNode> getPlot(@PathVariable Long id) {
+    public ResponseUtil<PlotNode> getPlot(@PathVariable("id") Long id) {
         PlotNode plotNode = plotService.getPlot(id);
         return ResponseUtil.success(plotNode);
     }
 
     @GetMapping("/game/{gameId}")
-    public ResponseUtil<List<PlotNode>> getPlotsByGameId(@PathVariable Long gameId) {
+    public ResponseUtil<List<PlotNode>> getPlotsByGameId(@PathVariable("gameId") Long gameId) {
         List<PlotNode> plots = plotService.getPlotsByGameId(gameId);
         return ResponseUtil.success(plots);
     }

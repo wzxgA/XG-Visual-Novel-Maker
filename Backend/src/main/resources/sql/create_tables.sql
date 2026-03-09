@@ -7,11 +7,11 @@ CREATE TABLE `game_novel` (
   `cover` VARCHAR(255) COMMENT '游戏封面',
   `bgm_url` VARCHAR(255) COMMENT '游戏背景音乐url',
   `cover_url` VARCHAR(255) COMMENT '游戏封面url',
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='游戏表';
 
 -- 创建角色表
-CREATE TABLE `character` (
+CREATE TABLE `game_character` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '角色id',
   `game_id` BIGINT NOT NULL COMMENT '游戏id',
   `name` VARCHAR(255) NOT NULL COMMENT '角色名称',
@@ -26,7 +26,7 @@ CREATE TABLE `character_image` (
   `character_id` BIGINT NOT NULL COMMENT '角色id',
   `image_url` VARCHAR(255) NOT NULL COMMENT '角色形象url',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  FOREIGN KEY (`character_id`) REFERENCES `character`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`character_id`) REFERENCES `game_character`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色形象表';
 
 -- 创建剧情节点表
@@ -51,7 +51,7 @@ CREATE TABLE `plot_node_relation` (
 
 -- 创建索引
 CREATE INDEX idx_game_novel_name ON `game_novel`(`name`);
-CREATE INDEX idx_character_game_id ON `character`(`game_id`);
+CREATE INDEX idx_character_game_id ON `game_character`(`game_id`);
 CREATE INDEX idx_character_image_character_id ON `character_image`(`character_id`);
 CREATE INDEX idx_plot_node_game_id ON `plot_node`(`game_id`);
 CREATE INDEX idx_plot_node_relation_from_node ON `plot_node_relation`(`from_node_id`);

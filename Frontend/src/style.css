@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-800;
+  }
+  
+  body {
+    @apply bg-alien-void text-white font-sans antialiased;
+    background: radial-gradient(ellipse at top, #1a1a3e 0%, #0A0A0F 50%, #050508 100%);
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-wider;
+  }
+}
+
+@layer components {
+  /* 外星流光按钮 */
+  .alien-btn {
+    @apply relative px-8 py-3 font-display font-bold text-sm uppercase tracking-widest;
+    @apply bg-transparent border-2 border-alien-cyan text-alien-cyan;
+    @apply transition-all duration-300 overflow-hidden;
+    @apply hover:text-alien-void hover:bg-alien-cyan;
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.3), inset 0 0 20px rgba(0, 245, 255, 0.1);
+  }
+  
+  .alien-btn::before {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.4), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+  
+  .alien-btn:hover::before {
+    transform: translateX(100%);
+  }
+  
+  .alien-btn-magenta {
+    @apply border-alien-magenta text-alien-magenta;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.3), inset 0 0 20px rgba(255, 0, 255, 0.1);
+  }
+  
+  .alien-btn-magenta:hover {
+    @apply bg-alien-magenta text-alien-void;
+  }
+  
+  /* 流光卡片 */
+  .alien-card {
+    @apply relative bg-alien-surface/80 backdrop-blur-md rounded-lg p-6;
+    @apply border border-alien-cyan/30;
+    box-shadow: 0 0 30px rgba(0, 245, 255, 0.1), inset 0 0 30px rgba(0, 245, 255, 0.05);
+  }
+  
+  .alien-card::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg pointer-events-none;
+    background: linear-gradient(135deg, rgba(0, 245, 255, 0.1) 0%, transparent 50%, rgba(255, 0, 255, 0.1) 100%);
+  }
+  
+  /* 输入框 */
+  .alien-input {
+    @apply w-full bg-alien-deep/80 border-2 border-alien-cyan/50 rounded-lg px-4 py-3;
+    @apply text-white placeholder-gray-500;
+    @apply focus:outline-none focus:border-alien-cyan focus:shadow-lg;
+    @apply transition-all duration-300;
+    box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
+  }
+  
+  .alien-input:focus {
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.3), inset 0 0 10px rgba(0, 245, 255, 0.1);
+  }
+  
+  /* 霓虹文字 */
+  .neon-text {
+    @apply font-display font-bold;
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+  }
+  
+  .neon-text-cyan {
+    @apply text-alien-cyan;
+    text-shadow: 0 0 10px rgba(0, 245, 255, 0.8), 0 0 20px rgba(0, 245, 255, 0.6), 0 0 40px rgba(0, 245, 255, 0.4);
+  }
+  
+  .neon-text-magenta {
+    @apply text-alien-magenta;
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.8), 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(255, 0, 255, 0.4);
+  }
+  
+  /* 几何装饰 */
+  .geo-orb {
+    @apply absolute rounded-full blur-3xl opacity-30;
+    background: radial-gradient(circle, var(--orb-color, #00F5FF) 0%, transparent 70%);
+  }
+  
+  /* 扫描线效果 */
+  .scan-line {
+    @apply absolute inset-0 pointer-events-none overflow-hidden;
+  }
+  
+  .scan-line::after {
+    content: '';
+    @apply absolute w-full h-1;
+    background: linear-gradient(180deg, transparent, rgba(0, 245, 255, 0.5), transparent);
+    animation: scan 4s linear infinite;
+  }
+  
+  /* 网格背景 */
+  .grid-bg {
+    background-image: 
+      linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
+
+@layer utilities {
+  .text-gradient-alien {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #00F5FF 0%, #FF00FF 50%, #39FF14 100%);
+  }
+  
+  .border-glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), inset 0 0 20px rgba(0, 245, 255, 0.1);
+  }
+  
+  .border-glow-magenta {
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), inset 0 0 20px rgba(255, 0, 255, 0.1);
+  }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00F5FF, #FF00FF);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00D9FF, #FF006E);
+}
+
+/* 选择文字样式 */
+::selection {
+  background: rgba(0, 245, 255, 0.3);
+  color: #fff;
+}

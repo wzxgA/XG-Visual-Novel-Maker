@@ -1,5 +1,8 @@
 package com.vnmaker.utils;
 
+import lombok.Data;
+
+@Data
 public class ResponseUtil<T> {
     private int code;
     private String message;
@@ -18,6 +21,4 @@ public class ResponseUtil<T> {
     public static <T> ResponseUtil<T> error(String message) {
         return new ResponseUtil<>(500, message, null);
     }
-
-    // getters and setters
 }

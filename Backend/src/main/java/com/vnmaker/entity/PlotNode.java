@@ -1,5 +1,7 @@
 package com.vnmaker.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.util.List;
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 public class PlotNode {
 
+    @TableId(type = IdType.AUTO)
     private Long id; // 剧情节点id   
     private String scriptJson;// 剧情脚本
     @JsonIgnore

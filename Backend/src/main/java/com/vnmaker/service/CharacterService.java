@@ -1,6 +1,6 @@
 package com.vnmaker.service;
 
-import com.vnmaker.entity.Character;
+import com.vnmaker.entity.GameCharacter;
 import com.vnmaker.mapper.CharacterMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ public class CharacterService {
 
     private final CharacterMapper characterMapper;
 
-    public boolean createCharacter(Character character) {
+    public boolean createCharacter(GameCharacter character) {
         return characterMapper.insert(character) > 0;
     }
 
-    public boolean updateCharacter(Character character) {
+    public boolean updateCharacter(GameCharacter character) {
         return characterMapper.updateById(character) > 0;
     }
 
@@ -25,11 +25,11 @@ public class CharacterService {
         return characterMapper.deleteById(id) > 0;
     }
 
-    public Character getCharacter(Long id) {
+    public GameCharacter getCharacter(Long id) {
         return characterMapper.selectById(id);
     }
 
-    public List<Character> getCharactersByGameId(Long gameId) {
+    public List<GameCharacter> getCharactersByGameId(Long gameId) {
         return characterMapper.selectByGameId(gameId);
     }
 }

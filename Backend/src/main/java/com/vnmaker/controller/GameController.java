@@ -30,13 +30,13 @@ public class GameController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseUtil<?> deleteGame(@PathVariable Long id) {
+    public ResponseUtil<?> deleteGame(@PathVariable("id") Long id) {
         boolean result = gameService.deleteGame(id);
         return ResponseUtil.success(result);
     }
 
     @GetMapping("/{id}")
-    public ResponseUtil<GameNovel> getGame(@PathVariable Long id) {
+    public ResponseUtil<GameNovel> getGame(@PathVariable("id") Long id) {
         GameNovel gameNovel = gameService.getGame(id);
         return ResponseUtil.success(gameNovel);
     }

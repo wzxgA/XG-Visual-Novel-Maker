@@ -1,0 +1,28 @@
+package com.vnmaker.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@TableName("game_character")
+public class GameCharacter {
+
+    @TableId(type = IdType.AUTO)
+    @JsonIgnore
+    private Long id;//角色id
+
+    private Long gameId;//游戏id
+
+    private String name;//角色名称
+
+    private Long rate;//角色进度
+
+    @JsonIgnore
+    private List<String> imageUrl;//角色形象url
+}

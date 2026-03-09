@@ -1,4 +1,6 @@
 package com.vnmaker.entity;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -7,6 +9,7 @@ import java.util.Date;
 @Data
 public class GameNovel {
 
+    @TableId(type = IdType.AUTO)
     @JsonIgnore
     private Long id; //游戏id
     private String name; //游戏名称
