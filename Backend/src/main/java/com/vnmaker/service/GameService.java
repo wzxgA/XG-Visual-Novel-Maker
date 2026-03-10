@@ -2,7 +2,6 @@ package com.vnmaker.service;
 
 import com.vnmaker.entity.GameNovel;
 import com.vnmaker.mapper.GameMapper;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

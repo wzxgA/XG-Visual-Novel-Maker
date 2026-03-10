@@ -85,7 +85,10 @@
               :class="{ 'border-alien-cyan': selectedCharacter?.id === char.id }"
             >
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-alien-cyan/30 to-alien-magenta/30 flex items-center justify-center">
+                <div v-if="char.imageUrl" class="w-10 h-10 rounded-full overflow-hidden border border-alien-cyan/30">
+                  <img :src="char.imageUrl" alt="角色图片" class="w-full h-full object-cover">
+                </div>
+                <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-alien-cyan/30 to-alien-magenta/30 flex items-center justify-center">
                   <span class="font-display font-bold text-alien-cyan">{{ char.name?.[0] }}</span>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -313,9 +316,23 @@
                   <label class="block text-alien-cyan font-mono text-sm mb-2 tracking-wider">角色名称</label>
                   <input v-model="characterForm.name" type="text" class="alien-input" placeholder="输入角色名称..." required>
                 </div>
+                
                 <div>
-                  <label class="block text-alien-cyan font-mono text-sm mb-2 tracking-wider">角色进度 (%)</label>
-                  <input v-model.number="characterForm.rate" type="number" min="0" max="100" class="alien-input" placeholder="0">
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-alien-cyan font-mono text-sm tracking-wider">角色图片</label>
+                    <button type="button" @click="addImageUrl" class="text-xs text-alien-cyan hover:text-white transition-colors">
+                      添加图片
+                    </button>
+                  </div>
+                  <div v-for="(url, index) in characterForm.imageUrls" :key="index" class="flex gap-2 mb-2">
+                    <input v-model="characterForm.imageUrls[index]" type="text" class="hidden" placeholder="图片URL..." readonly>
+                    <input type="file" @change="handleFileUpload($event, index)" class="text-xs text-gray-400">
+                    <button type="button" @click="removeImageUrl(index)" class="text-gray-500 hover:text-red-500 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
               
@@ -336,7 +353,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { gameApi, characterApi, plotApi } from '../api'
+import { gameApi, characterApi, plotApi, fileApi } from '../api'
 
 const router = useRouter()
 const currentProject = ref(null)
@@ -365,7 +382,8 @@ const plotNodes = ref([
 
 const characterForm = ref({
   name: '',
-  rate: 0
+  rate: 0,
+  imageUrls: []
 })
 
 // 获取当前项目信息
@@ -399,6 +417,32 @@ const selectCharacter = (char) => {
   selectedCharacter.value = char
 }
 
+// 添加图片URL
+const addImageUrl = () => {
+  characterForm.value.imageUrls.push('')
+}
+
+// 删除图片URL
+const removeImageUrl = (index) => {
+  characterForm.value.imageUrls.splice(index, 1)
+}
+
+// 处理文件上传
+const handleFileUpload = async (event, index) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  try {
+    const res = await fileApi.uploadFile(file)
+    if (res.code === 200) {
+      characterForm.value.imageUrls[index] = res.data
+    }
+  } catch (error) {
+    console.error('文件上传失败:', error)
+    alert('文件上传失败')
+  }
+}
+
 // 添加角色
 const submitAddCharacter = async () => {
   if (!currentProject.value || !characterForm.value.name) return
@@ -410,7 +454,7 @@ const submitAddCharacter = async () => {
     })
     if (res.code === 200) {
       showAddCharacter.value = false
-      characterForm.value = { name: '', rate: 0 }
+      characterForm.value = { name: '', rate: 0, imageUrls: [] }
       fetchCharacters()
     }
   } catch (error) {

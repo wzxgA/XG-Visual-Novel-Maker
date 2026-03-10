@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vnmaker.mapper.CharacterImageMapper">
+
+    <select id="selectByCharacterId" resultType="com.vnmaker.entity.CharacterImage">
+        SELECT * FROM character_image WHERE character_id = #{characterId}
+    </select>
+
+</mapper>

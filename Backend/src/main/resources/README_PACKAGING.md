@@ -73,3 +73,38 @@
 ### 文件上传：
 - `POST /api/upload/image` - 上传图片
 - `POST /api/upload/audio` - 上传音频
+
+
+## 配置文件
+spring:
+  ### 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/vnm?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: root  # 你的MySQL账号
+    password: 19107132084  # 你的MySQL密码
+  ### 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 100MB  # 单文件最大100MB（满足图片/音频需求）
+      max-request-size: 500MB
+  ### 服务器配置
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+
+### MyBatisPlus配置
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.vnmaker.entity
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志
+
+### 自定义配置：资源存储路径
+vn:
+  resource:
+    path: "D:/visual novel/XG-VNM-Resource/"
+    images: "${vn.resource.path}images/"
+    audio: "${vn.resource.path}audio/"

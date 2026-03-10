@@ -72,51 +72,8 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <executable>true</executable>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.vnmaker.VNMakerApplication</mainClass>
-                        </manifest>
-                    </archive>
+                    <mainClass>com.vnmaker.VNMakerApplication</mainClass>
                 </configuration>
-            </plugin>
-            <!-- Launch4j 插件 - 用于生成 EXE 文件 -->
-            <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.30</version>
-                <executions>
-                    <execution>
-                        <id>l4j-clui</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>console</headerType>
-                            <outfile>target/VNMaker.exe</outfile>
-                            <jar>${project.build.directory}/${project.build.finalName}.jar</jar>
-                            <downloadUrl>https://adoptium.net/download/</downloadUrl>
-                            <classPath>
-                                <mainClass>com.vnmaker.VNMakerApplication</mainClass>
-                            </classPath>
-                            <jre>
-                                <minVersion>17</minVersion>
-                                <maxVersion>21</maxVersion>
-                                <jdkPreference>preferJre</jdkPreference>
-                            </jre>
-                            <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtFileVersion>1.0.0</txtFileVersion>
-                                <txtProductVersion>1.0.0</txtProductVersion>
-                                <companyName>VNMaker</companyName>
-                                <productName>Visual Novel Maker</productName>
-                                <internalName>VNMaker</internalName>
-                                <originalFilename>VNMaker.exe</originalFilename>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

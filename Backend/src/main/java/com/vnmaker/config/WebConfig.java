@@ -15,5 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/resources/**")
                 .addResourceLocations("file:///" + resourcePath.replace("\\", "/"));
+        
+        // 添加Assets目录的资源处理器
+        registry.addResourceHandler("/Assets/**")
+                .addResourceLocations("file:///D:/visual novel/XG-Visual-Novel-Maker/Assets/");
     }
 }

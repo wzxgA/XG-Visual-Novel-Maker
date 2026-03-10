@@ -1,6 +1,7 @@
 package com.vnmaker.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +24,8 @@ public class GameCharacter {
 
     private Long rate;//角色进度
 
-    @JsonIgnore
-    private List<String> imageUrl;//角色形象url
+    private String imageUrl;//角色形象url
+
+    @TableField(exist = false)
+    private List<String> imageUrls;//角色形象url列表
 }

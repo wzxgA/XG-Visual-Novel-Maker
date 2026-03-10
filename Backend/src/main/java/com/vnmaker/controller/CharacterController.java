@@ -1,6 +1,8 @@
 package com.vnmaker.controller;
 
+import com.vnmaker.entity.CharacterImage;
 import com.vnmaker.entity.GameCharacter;
+import com.vnmaker.mapper.CharacterImageMapper;
 import com.vnmaker.service.CharacterService;
 import com.vnmaker.utils.ResponseUtil;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +18,24 @@ import java.util.List;
 public class CharacterController {
 
     private final CharacterService characterService;
+    private final CharacterImageMapper characterImageMapper;
 
     @PostMapping
     public ResponseUtil<?> createCharacter(@RequestBody GameCharacter character) {
         log.info("Creating character: {}", character);
+        // 如果有图片URL，设置第一个URL为主要图片URL
+        if (character.getImageUrls() != null && !character.getImageUrls().isEmpty()) {
+            character.setImageUrl(character.getImageUrls().get(0));
+        }
         boolean result = characterService.createCharacter(character);
+        if (result && character.getImageUrls() != null && !character.getImageUrls().isEmpty()) {
+            for (String imageUrl : character.getImageUrls()) {
+                CharacterImage characterImage = new CharacterImage();
+                characterImage.setCharacterId(character.getId());
+                characterImage.setImageUrl(imageUrl);
+                characterImageMapper.insert(characterImage);
+            }
+        }
         return ResponseUtil.success(result);
     }
 

@@ -17,13 +17,13 @@ public class PlotController {
     private final PlotService plotService;
 
     @PostMapping
-    public ResponseUtil<?> createPlot(@RequestBody PlotNode plotNode) {
+    public ResponseUtil<?> createPlot(@RequestBody PlotNode<?> plotNode) {
         boolean result = plotService.createPlot(plotNode);
         return ResponseUtil.success(result);
     }
 
     @PutMapping
-    public ResponseUtil<?> updatePlot(@RequestBody PlotNode plotNode) {
+    public ResponseUtil<?> updatePlot(@RequestBody PlotNode<?> plotNode) {
         boolean result = plotService.updatePlot(plotNode);
         return ResponseUtil.success(result);
     }
@@ -35,14 +35,14 @@ public class PlotController {
     }
 
     @GetMapping("/{id}")
-    public ResponseUtil<PlotNode> getPlot(@PathVariable("id") Long id) {
-        PlotNode plotNode = plotService.getPlot(id);
+    public ResponseUtil<PlotNode<?>> getPlot(@PathVariable("id") Long id) {
+        PlotNode<?> plotNode = plotService.getPlot(id);
         return ResponseUtil.success(plotNode);
     }
 
     @GetMapping("/game/{gameId}")
-    public ResponseUtil<List<PlotNode>> getPlotsByGameId(@PathVariable("gameId") Long gameId) {
-        List<PlotNode> plots = plotService.getPlotsByGameId(gameId);
+    public ResponseUtil<List<PlotNode<?>>> getPlotsByGameId(@PathVariable("gameId") Long gameId) {
+        List<PlotNode<?>> plots = plotService.getPlotsByGameId(gameId);
         return ResponseUtil.success(plots);
     }
 }

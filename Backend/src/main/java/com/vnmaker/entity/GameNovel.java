@@ -10,7 +10,6 @@ import java.util.Date;
 public class GameNovel {
 
     @TableId(type = IdType.AUTO)
-    @JsonIgnore
     private Long id; //游戏id
     private String name; //游戏名称
     private String author; //作者
