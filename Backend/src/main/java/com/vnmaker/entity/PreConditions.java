@@ -12,7 +12,6 @@ public class PreConditions<T> {
         this.conditionValue = conditionValue;
     }
 
-
     public boolean checkCondition() {
         // 具体逻辑根据业务需求实现
         return isMet;
