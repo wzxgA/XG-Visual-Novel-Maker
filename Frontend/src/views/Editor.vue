@@ -77,11 +77,12 @@
           </button>
           
           <div class="space-y-2">
-            <div 
+            <button
               v-for="char in characters" 
               :key="char.id"
-              @click="selectCharacter(char)"
-              class="alien-card p-3 cursor-pointer group hover:border-alien-cyan transition-all"
+              @click="openEditCharacter(char)"
+              type="button"
+              class="alien-card p-3 cursor-pointer group hover:border-alien-cyan transition-all text-left w-full"
               :class="{ 'border-alien-cyan': selectedCharacter?.id === char.id }"
             >
               <div class="flex items-center gap-3">
@@ -96,7 +97,7 @@
                   <p class="text-xs text-gray-500 font-mono">进度: {{ char.rate || 0 }}%</p>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
         
@@ -347,6 +348,59 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- 编辑角色弹窗 -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="showEditCharacter" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-alien-void/90 backdrop-blur-sm" @click="closeEditCharacter"></div>
+          <div class="alien-card w-full max-w-md relative z-10 animate-warp">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-2xl font-display font-bold neon-text-cyan">编辑角色</h3>
+              <button @click="closeEditCharacter" class="text-gray-500 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="submitUpdateCharacter">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-alien-cyan font-mono text-sm mb-2 tracking-wider">角色名称</label>
+                  <input v-model="editCharacterForm.name" type="text" class="alien-input" placeholder="输入角色名称..." required>
+                </div>
+
+                <div>
+                  <label class="block text-alien-cyan font-mono text-sm mb-2 tracking-wider">角色图片 URL</label>
+                  <input v-model="editCharacterForm.imageUrl" type="text" class="alien-input" placeholder="输入图片URL...">
+                  <div class="mt-2 flex items-center gap-3">
+                    <input type="file" @change="handleEditFileUpload" class="text-xs text-gray-400">
+                    <div v-if="editCharacterForm.imageUrl" class="w-10 h-10 rounded-full overflow-hidden border border-alien-cyan/30">
+                      <img :src="editCharacterForm.imageUrl" alt="预览" class="w-full h-full object-cover">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-3 mt-6">
+                <button type="button" @click="submitDeleteCharacter" class="py-3 px-4 border border-red-500/50 text-red-400 font-display font-bold text-sm uppercase tracking-widest hover:border-red-400 hover:text-red-300 transition-all" :disabled="isUpdatingCharacter || isDeletingCharacter">
+                  <span v-if="isDeletingCharacter">删除中...</span>
+                  <span v-else>删除</span>
+                </button>
+                <button type="button" @click="closeEditCharacter" class="flex-1 py-3 border border-gray-600 text-gray-400 font-display font-bold text-sm uppercase tracking-widest hover:border-gray-400 hover:text-white transition-all" :disabled="isUpdatingCharacter || isDeletingCharacter">
+                  取消
+                </button>
+                <button type="submit" class="flex-1 alien-btn" :disabled="isUpdatingCharacter || isDeletingCharacter">
+                  <span v-if="isUpdatingCharacter">保存中...</span>
+                  <span v-else>保存</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -362,6 +416,9 @@ const activeSidebarTab = ref('characters')
 const selectedCharacter = ref(null)
 const selectedNode = ref(null)
 const showAddCharacter = ref(false)
+const showEditCharacter = ref(false)
+const isUpdatingCharacter = ref(false)
+const isDeletingCharacter = ref(false)
 
 const sidebarTabs = [
   { id: 'characters', name: '角色' },
@@ -384,6 +441,12 @@ const characterForm = ref({
   name: '',
   rate: 0,
   imageUrls: []
+})
+
+const editCharacterForm = ref({
+  id: null,
+  name: '',
+  imageUrl: ''
 })
 
 // 获取当前项目信息
@@ -415,6 +478,94 @@ const fetchCharacters = async () => {
 // 选择角色
 const selectCharacter = (char) => {
   selectedCharacter.value = char
+}
+
+const openEditCharacter = (char) => {
+  selectCharacter(char)
+  editCharacterForm.value = {
+    id: char?.id ?? null,
+    name: char?.name ?? '',
+    imageUrl: char?.imageUrl ?? ''
+  }
+  showEditCharacter.value = true
+}
+
+const closeEditCharacter = () => {
+  showEditCharacter.value = false
+  isUpdatingCharacter.value = false
+  isDeletingCharacter.value = false
+  editCharacterForm.value = { id: null, name: '', imageUrl: '' }
+}
+
+const handleEditFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const res = await fileApi.uploadFile(file)
+    if (res.code === 200) {
+      editCharacterForm.value.imageUrl = res.data
+    }
+  } catch (error) {
+    console.error('文件上传失败:', error)
+    alert('文件上传失败')
+  } finally {
+    event.target.value = ''
+  }
+}
+
+const submitUpdateCharacter = async () => {
+  if (!editCharacterForm.value.id) {
+    alert('角色缺少ID，无法保存。请刷新后重试。')
+    return
+  }
+
+  isUpdatingCharacter.value = true
+  try {
+    const res = await characterApi.updateCharacter({
+      id: editCharacterForm.value.id,
+      name: editCharacterForm.value.name,
+      imageUrl: editCharacterForm.value.imageUrl || null
+    })
+    if (res.code === 200) {
+      await fetchCharacters()
+      const updated = characters.value.find(c => c.id === editCharacterForm.value.id)
+      if (updated) selectedCharacter.value = updated
+      closeEditCharacter()
+    }
+  } catch (error) {
+    console.error('更新角色失败:', error)
+    alert('更新角色失败')
+  } finally {
+    isUpdatingCharacter.value = false
+  }
+}
+
+const submitDeleteCharacter = async () => {
+  if (!editCharacterForm.value.id) {
+    alert('角色缺少ID，无法删除。请刷新后重试。')
+    return
+  }
+
+  const ok = confirm('确认删除该角色吗？此操作不可撤销。')
+  if (!ok) return
+
+  isDeletingCharacter.value = true
+  try {
+    const res = await characterApi.deleteCharacter(editCharacterForm.value.id)
+    if (res.code === 200) {
+      if (selectedCharacter.value?.id === editCharacterForm.value.id) {
+        selectedCharacter.value = null
+      }
+      await fetchCharacters()
+      closeEditCharacter()
+    }
+  } catch (error) {
+    console.error('删除角色失败:', error)
+    alert('删除角色失败')
+  } finally {
+    isDeletingCharacter.value = false
+  }
 }
 
 // 添加图片URL
