@@ -67,7 +67,7 @@
         <!-- 角色列表 -->
         <div v-if="activeSidebarTab === 'characters'" class="flex-1 overflow-y-auto p-4">
           <button 
-            @click="showAddCharacter = true"
+            @click="openAddCharacter"
             class="w-full mb-4 py-2 border border-dashed border-alien-cyan/50 text-alien-cyan/70 font-mono text-sm hover:border-alien-cyan hover:text-alien-cyan transition-all flex items-center justify-center gap-2"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +221,7 @@
                     <span class="w-6 h-6 rounded-full bg-alien-cyan/20 flex items-center justify-center text-xs font-mono text-alien-cyan">
                       {{ index + 1 }}
                     </span>
-                    <span class="text-xs text-gray-500 font-mono">{{ node.type || '对话' }}</span>
+                    <span class="text-xs text-gray-500 font-mono">{{ nodeTypeLabel(node.type) }}</span>
                   </div>
                   <p class="text-sm text-gray-300 truncate">{{ node.content || '节点内容...' }}</p>
                 </div>
@@ -248,50 +248,59 @@
         </div>
         
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
-          <!-- 节点类型 -->
-          <div>
-            <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">节点类型</label>
-            <select class="alien-input py-2 text-sm">
-              <option value="dialogue">对话</option>
-              <option value="choice">选项</option>
-              <option value="action">动作</option>
-              <option value="bgm">背景音乐</option>
-            </select>
+          <div class="alien-card p-3" v-if="!selectedNode">
+            <p class="text-sm text-gray-400 font-mono">点击下方剧情节点后，在这里编辑节点内容</p>
           </div>
-          
-          <!-- 角色选择 -->
-          <div>
-            <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">说话角色</label>
-            <select class="alien-input py-2 text-sm">
-              <option value="">无</option>
-              <option v-for="char in characters" :key="char.id" :value="char.id">{{ char.name }}</option>
-            </select>
-          </div>
-          
-          <!-- 对话文本 -->
-          <div>
-            <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">对话文本</label>
-            <textarea class="alien-input h-24 resize-none text-sm" placeholder="输入对话内容..."></textarea>
-          </div>
-          
-          <!-- 背景设置 -->
-          <div>
-            <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">背景</label>
-            <div class="aspect-video rounded-lg bg-alien-deep border border-alien-cyan/20 flex items-center justify-center cursor-pointer hover:border-alien-cyan transition-all">
-              <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
+
+          <template v-else>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs text-gray-500 font-mono">当前节点</div>
+                <div class="text-sm text-white font-display font-bold">#{{ selectedNode.id }}</div>
+              </div>
             </div>
-          </div>
-          
-          <!-- BGM设置 -->
-          <div>
-            <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">背景音乐</label>
-            <select class="alien-input py-2 text-sm">
-              <option value="">无</option>
-              <option v-for="audio in audioFiles" :key="audio.name" :value="audio.name">{{ audio.name }}</option>
-            </select>
-          </div>
+
+            <div>
+              <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">节点类型</label>
+              <select v-model="nodeForm.type" class="alien-input py-2 text-sm">
+                <option v-for="opt in nodeTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">说话角色</label>
+              <select v-model="nodeForm.characterId" class="alien-input py-2 text-sm">
+                <option value="">无</option>
+                <option v-for="char in characters" :key="char.id" :value="String(char.id)">{{ char.name }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">对话文本</label>
+              <textarea v-model="nodeForm.text" class="alien-input h-24 resize-none text-sm" placeholder="输入对话内容..."></textarea>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">背景</label>
+              <div class="space-y-2">
+                <input v-model="nodeForm.backgroundUrl" type="text" class="alien-input py-2 text-sm" placeholder="输入背景URL...">
+                <div class="flex items-center gap-3">
+                  <input type="file" @change="handleNodeBackgroundUpload" class="text-xs text-gray-400">
+                  <div v-if="nodeForm.backgroundUrl" class="w-14 h-10 rounded-lg overflow-hidden border border-alien-cyan/30">
+                    <img :src="nodeForm.backgroundUrl" alt="背景预览" class="w-full h-full object-cover">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 font-mono text-xs mb-2 uppercase tracking-wider">背景音乐</label>
+              <select v-model="nodeForm.bgm" class="alien-input py-2 text-sm">
+                <option value="">无</option>
+                <option v-for="audio in audioFiles" :key="audio.name" :value="audio.name">{{ audio.name }}</option>
+              </select>
+            </div>
+          </template>
         </div>
       </aside>
     </div>
@@ -405,12 +414,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { gameApi, characterApi, plotApi, fileApi } from '../api'
 
 const router = useRouter()
 const currentProject = ref(null)
+const isLoadingProject = ref(false)
 const isSaving = ref(false)
 const activeSidebarTab = ref('characters')
 const selectedCharacter = ref(null)
@@ -433,8 +443,8 @@ const audioFiles = ref([
   { name: 'bgm_02.mp3', duration: '3:12' }
 ])
 const plotNodes = ref([
-  { id: 1, type: '对话', content: '欢迎来到游戏世界...' },
-  { id: 2, type: '选项', content: '选择你的道路' }
+  { id: 1, type: 'dialogue', content: '欢迎来到游戏世界...' },
+  { id: 2, type: 'choice', content: '选择你的道路' }
 ])
 
 const characterForm = ref({
@@ -449,8 +459,50 @@ const editCharacterForm = ref({
   imageUrl: ''
 })
 
+const nodeTypeOptions = [
+  { value: 'dialogue', label: '对话' },
+  { value: 'choice', label: '选项' },
+  { value: 'action', label: '动作' },
+  { value: 'bgm', label: '背景音乐' }
+]
+
+const nodeForm = ref({
+  type: 'dialogue',
+  characterId: '',
+  text: '',
+  backgroundUrl: '',
+  bgm: ''
+})
+
+const nodeTypeLabel = (type) => {
+  const mapping = {
+    dialogue: '对话',
+    choice: '选项',
+    action: '动作',
+    bgm: '背景音乐',
+    对话: '对话',
+    选项: '选项',
+    动作: '动作',
+    背景音乐: '背景音乐'
+  }
+  return mapping[type] || '对话'
+}
+
+const normalizeNodeType = (type) => {
+  if (type === 'dialogue' || type === 'choice' || type === 'action' || type === 'bgm') return type
+  const mapping = {
+    对话: 'dialogue',
+    选项: 'choice',
+    动作: 'action',
+    背景音乐: 'bgm'
+  }
+  return mapping[type] || 'dialogue'
+}
+
 // 获取当前项目信息
 const fetchCurrentProject = async () => {
+  if (isLoadingProject.value) return
+  isLoadingProject.value = true
   try {
     const res = await gameApi.getAllGames()
     if (res.code === 200 && res.data.length > 0) {
@@ -459,7 +511,24 @@ const fetchCurrentProject = async () => {
     }
   } catch (error) {
     console.error('获取项目信息失败:', error)
+  } finally {
+    isLoadingProject.value = false
   }
+}
+
+const ensureCurrentProject = async () => {
+  if (currentProject.value) return true
+  await fetchCurrentProject()
+  return !!currentProject.value
+}
+
+const openAddCharacter = async () => {
+  const ok = await ensureCurrentProject()
+  if (!ok) {
+    alert('当前没有项目，请先在首页创建项目')
+    return
+  }
+  showAddCharacter.value = true
 }
 
 // 获取角色列表
@@ -596,18 +665,37 @@ const handleFileUpload = async (event, index) => {
 
 // 添加角色
 const submitAddCharacter = async () => {
-  if (!currentProject.value || !characterForm.value.name) return
+  const ok = await ensureCurrentProject()
+  if (!ok) {
+    alert('当前没有项目，请先在首页创建项目')
+    return
+  }
+
+  const name = characterForm.value.name?.trim()
+  if (!name) {
+    alert('请输入角色名称')
+    return
+  }
   
   try {
     const res = await characterApi.createCharacter({
-      ...characterForm.value,
+      name,
+      rate: characterForm.value.rate || 0,
+      imageUrls: (characterForm.value.imageUrls || []).filter(Boolean),
       gameId: currentProject.value.id
     })
-    if (res.code === 200) {
-      showAddCharacter.value = false
-      characterForm.value = { name: '', rate: 0, imageUrls: [] }
-      fetchCharacters()
+    if (res.code !== 200) {
+      alert(res.message || '添加角色失败')
+      return
     }
+    if (!res.data) {
+      alert('添加角色失败')
+      return
+    }
+
+    showAddCharacter.value = false
+    characterForm.value = { name: '', rate: 0, imageUrls: [] }
+    fetchCharacters()
   } catch (error) {
     console.error('添加角色失败:', error)
     alert('添加角色失败')
@@ -619,12 +707,61 @@ const selectNode = (node) => {
   selectedNode.value = node
 }
 
+const handleNodeBackgroundUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const res = await fileApi.uploadFile(file)
+    if (res.code === 200) {
+      nodeForm.value.backgroundUrl = res.data
+    }
+  } catch (error) {
+    console.error('文件上传失败:', error)
+    alert('文件上传失败')
+  } finally {
+    event.target.value = ''
+  }
+}
+
+watch(
+  selectedNode,
+  node => {
+    if (!node) {
+      nodeForm.value = { type: 'dialogue', characterId: '', text: '', backgroundUrl: '', bgm: '' }
+      return
+    }
+
+    nodeForm.value = {
+      type: normalizeNodeType(node.type),
+      characterId: node.characterId != null ? String(node.characterId) : '',
+      text: node.content || '',
+      backgroundUrl: node.backgroundUrl || '',
+      bgm: node.bgm || ''
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  nodeForm,
+  form => {
+    if (!selectedNode.value) return
+    selectedNode.value.type = form.type
+    selectedNode.value.content = form.text
+    selectedNode.value.characterId = form.characterId ? Number(form.characterId) : null
+    selectedNode.value.backgroundUrl = form.backgroundUrl || null
+    selectedNode.value.bgm = form.bgm || null
+  },
+  { deep: true }
+)
+
 // 添加剧情节点
 const addPlotNode = () => {
   const newId = plotNodes.value.length + 1
   plotNodes.value.push({
     id: newId,
-    type: '对话',
+    type: 'dialogue',
     content: '新节点...'
   })
 }
